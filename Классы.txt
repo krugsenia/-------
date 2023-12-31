@@ -1,0 +1,77 @@
+import requests
+class Rate:
+     def __init__(self, format_='value', diff=False):
+        self.format = format_
+        self.diff = diff
+      
+     def exchange_rates(self):
+       self.r = requests.get('https://www.cbr-xml-daily.ru/daily_json.js')
+       return self.r.json()["Valute"]
+
+     def max_cource(self):
+        response = self.exchange_rates()
+        maxValue = 0
+        for key, value in response.items():
+          if maxValue < value["Value"]:
+            maxValue = value["Value"]
+            name = value["Name"]
+        return name
+
+     def make_format(self, currency):
+        response = self.exchange_rates()
+        
+        if currency in response:
+            if self.format == 'full':
+                return response[currency]
+            
+            if self.format == 'value':
+                if self.diff is True:
+                     return response[currency]['Value'] - response[currency]['Previous']
+                else:
+                     return response[currency]['Value']
+        return 'Error'     
+
+
+     def eur(self):
+              return self.make_format('EUR')
+
+     def usd(self):
+              return self.make_format('USD')
+    
+     def brl(self):
+              return self.make_format('BRL')
+
+        
+r=Rate()
+print(r.max_cource())
+print(Rate(diff=True).usd())
+print (Rate(diff=False).eur())
+
+
+
+class Designer:
+      def __init__(self, name, seniority, premium):
+        self.name = name
+        self.seniority = seniority
+        self.premium =  premium
+        self.grade = 1
+    
+      def grade_up(self):
+        """Повышает уровень сотрудника"""
+        self.grade += 1
+    
+      def publish_grade(self):
+        """Публикация результатов аккредитации сотрудников"""
+        print(self.name, self.grade)
+    
+      def check_if_it_is_time_for_upgrade(self):
+         if self.seniority==0: 
+            self.seniority=1+self.premium*2
+         else:
+            self.seniority+=1
+         if self.seniority % 7==0:
+                self.grade_up()
+         return self.publish_grade()
+Anna = Designer('Анна', seniority=0, premium=2)
+for i in range(20):
+    Anna.check_if_it_is_time_for_upgrade()

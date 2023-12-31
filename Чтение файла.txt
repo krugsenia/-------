@@ -1,0 +1,40 @@
+import json
+
+i=0
+purchases={}
+with open('purchase_log.txt','r') as f:
+  f.readline()
+  for line in f.readlines():
+    line = line.strip()
+    p = json.loads(line)
+    key = p['user_id']
+    value = p['category']
+    purchases[key] = value
+    
+    i += 1
+    if i > 10:
+            break
+print(purchases)  
+
+
+purchases={}
+with open('purchase_log.txt','r') as f:
+  f.readline()
+  for line in f.readlines():
+    line = line.strip()
+    p = json.loads(line)
+    key = p['user_id']
+    value = p['category']
+    purchases[key] = value
+with open('visit_log.csv', 'r') as v:
+    v.readline()
+    with open('funnel.csv', 'w') as fwrite:
+        fwrite.write('user_id, source, category\n')
+        for visit in v:
+          visit_list=visit.strip().split(',')
+          if visit_list[0] in purchases.keys():
+             visit_list.append(purchases[visit_list[0]])
+             result= ','.join(visit_list) + '\n'
+             fwrite.write(result)
+           
+            

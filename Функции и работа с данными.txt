@@ -1,0 +1,54 @@
+import pandas as pd
+ratings = pd.read_csv('ratings.csv')
+movies = pd.read_csv('movies.csv')
+data=ratings.merge(movies, how='inner')
+
+def sort_rating (row):
+  if (row['rating']<=2.0):
+    return 'низкий рейтинг'
+  if (row['rating']<=4.0):
+    return 'средний рейтинг'
+  if ((4.5<=row['rating']) & (row['rating']<=5.0)):
+    return 'высокий рейтинг'
+
+data['class']=data.apply(sort_rating, axis=1)
+data.head(10)
+
+
+
+import pandas as pd
+keywords = pd.read_csv('keywords.csv')
+geo_data = {
+'Центр': ['москва', 'тула', 'ярославль'],
+'Северо-Запад': ['петербург', 'псков', 'мурманск'],
+'Дальний Восток': ['владивосток', 'сахалин', 'хабаровск']}
+
+def geo_class(row):
+  for region, cities in geo_data.items():
+    for city in cities:
+      if city in row['keyword']:
+        return region 
+  return 'undefined'
+  
+keywords['region']=keywords.apply(geo_class,axis=1)
+keywords.head()
+data = keywords[(keywords['region']=='Дальний Восток')]
+data.head()
+
+
+import pandas as pd
+ratings = pd.read_csv('ratings.csv')
+movies = pd.read_csv('movies.csv')
+data=ratings.merge(movies, how='inner')
+
+years=list(range (1950,2011))
+
+def production_year(row):
+  for year in years:
+    if str(year) in row['title']:
+         return year
+  return '1900'
+
+data['year']=data.apply(production_year,axis=1) 
+results=data.groupby('year').agg({'rating': 'mean'}).sort_values('rating', ascending=False)
+results.head(15)

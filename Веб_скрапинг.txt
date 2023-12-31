@@ -1,0 +1,42 @@
+import requests
+from bs4 import BeautifulSoup
+
+import pandas as pd
+BASE_URL = 'https://habr.com'
+
+resp = requests.get(BASE_URL + '/ru/search/', params={
+    'q': 'pandas',
+    'target_type': 'posts',
+    'order': 'relevance'
+})
+soup = BeautifulSoup(resp.text)
+print(resp)
+
+
+BASE_URL = 'https://habr.com'
+
+def parse_habr(queries,number_page):
+  results = []
+  pages = [1]
+  if (number_page > 1):
+    pages = range (1,number_page)
+  for q in queries:
+     for i in pages:
+        resp = requests.get(BASE_URL + f'/ru/search/page{i}/', params={
+                          'q': q,
+                          'target_type': 'posts',
+                          'order': 'relevance'})
+        soup = BeautifulSoup(resp.text)   
+        for article_tag in soup.find_all('article'):
+            datetime = article_tag.find('time').get('datetime')
+            h2_tag = article_tag.find('h2')
+            title = h2_tag.get_text()
+            link = BASE_URL+h2_tag.find('a').get('href')
+            rating = article_tag.find('span', class_='tm-votes-meter__value').get_text()
+            art_resp = requests.get(link)
+            art_text = BeautifulSoup(art_resp.text).find('div', class_='article-formatted-body').get_text() 
+            results.append ([pd.to_datetime(datetime).date(), title, link,art_text, rating])
+  return pd.DataFrame(results, columns=['Date', 'Title', 'Link', 'Text', 'Rating']).drop_duplicates()
+
+
+parse_habr(['pandas'],3)

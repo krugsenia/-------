@@ -1,0 +1,45 @@
+Для датафрейма log из материалов занятия создайте столбец source_type по следующим правилам:
+если источник traffic_source равен yandex или google, то в source_type ставится organic
+для источников paid и email из России - ставим ad
+для источников paid и email не из России - ставим other
+все остальные варианты берем из traffic_source без изменений
+
+   %%time
+import pandas as pd
+log = pd.read_csv('visit_log.csv', sep=';')
+log.head()
+def source_type(row):
+  if (row['traffic_source']=='yandex')|(row['traffic_source']=='google'):
+    return 'organic'
+  if (row['region']=='Russia')& ((row['traffic_source']=='paid')|(row['traffic_source']=='email')):
+          return 'ad'
+  if (row['region']!='Russia')& ((row['traffic_source']=='paid')|(row['traffic_source']=='email')):
+          return 'other' 
+  return row['traffic_source']
+        
+log['source_type']=log.apply(source_type,axis=1)
+log.head()
+
+
+%%time
+import pandas as pd
+log = pd.read_csv('visit_log.csv', sep=';')
+log_1=log.loc[log.traffic_source.isin(['yandex','google']),'sourse_type']='organic'
+log_2=log.loc[(log.region=='Russia')& (log.traffic_source.isin(['paid','email'])),'sourse_type']='ad'
+log_3=log.loc[log.traffic_source.isin(['paid','email']),'sourse_type']='other'
+log['sourse_type'].fillna(log['traffic_source'],inplace=True) 
+log.head()
+
+
+
+
+urls = pd.read_csv('URLs.txt')
+urls[urls.url.str.contains('/[0-9]{8}-', regex=True)].head()
+
+
+ratings = pd.read_csv('ratings.csv')
+group = ratings.groupby('userId').agg({'timestamp': ['min', 'max', 'count']})
+group = group[group['timestamp']['count'] >= 100]
+group['lifetime'] = group['timestamp']['max'] - group['timestamp']['min']
+average_lifetime = group['lifetime'].mean()
+print(average_lifetime)

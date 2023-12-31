@@ -1,0 +1,25 @@
+import pandas as pd
+import pandas as pd
+ratings = pd.read_csv('/ratings.csv')
+movies = pd.read_csv('/movies.csv')
+data=ratings.merge(movies, how='inner')
+data[['title', 'rating']].sort_values('rating', ascending=False).value_counts().head(1)
+
+
+По данным файла power.csv посчитайте суммарное потребление стран Прибалтики (Латвия, Литва и Эстония) категорий 4, 12 и 21 за период с 2005 по 2010 года. Не учитывайте в расчетах отрицательные значения quantity.
+data = pd.read_csv('/power.csv')
+
+period=data[(data['year']>=2005) & (data['year']<=2010)& (data['quantity']>0)]
+
+category_ = period[(period['category']==4)| (period['category']==12) |(period['category']==21)]
+
+filtr_countries = category_[(category_['country']=='Lithuania')| (category_['country']=='Latvia')|(category_['country']=='Estonia')]
+
+summa_quantity_Baltics = filtr_countries['quantity'].sum()
+
+print('Суммарное потребление:',summa_quantity_Baltics)
+
+
+page_url = 'https://ru.wikipedia.org/wiki/%D0%9D%D0%B0%D1%81%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D0%B8'
+df = pd.read_html(page_url, attrs = {'class':'wikitable'}, encoding='utf-8')
+df[:1]
